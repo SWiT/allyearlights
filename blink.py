@@ -11,7 +11,8 @@ import argparse
 import signal
 import sys
 def signal_handler(signal, frame):
-        colorWipe(strip, Color(0,0,0))
+        setAll(strip, Color(0,0,0))
+        print "\nquit"
         sys.exit(0)
 
 def opt_parse():
@@ -27,14 +28,15 @@ LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
 #LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
 LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
-LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
+LED_BRIGHTNESS = 80     # Set to 0 for darkest and 255 for brightest
 LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
 LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
-LED_STRIP      = ws.WS2811_STRIP_RBG   # Strip type and colour ordering
+LED_STRIP      = ws.WS2811_STRIP_RGB   # Strip type and colour ordering
 
 
 
 # Define functions which animate LEDs in various ways.
+
 def colorWipe(strip, color, wait_ms=50):
 	"""Wipe color across display a pixel at a time."""
 	for i in range(strip.numPixels()):
@@ -91,6 +93,50 @@ def theaterChaseRainbow(strip, wait_ms=50):
 			for i in range(0, strip.numPixels(), 3):
 				strip.setPixelColor(i+q, 0)
 
+				
+###########################################
+				
+				
+def getNextColor(colors):
+	global currcolor, curroffset
+	
+	"""apply the current offset"""
+	i = (currcolor + curroffset) % len(colors)
+	
+	color = colors[i]
+	
+	currcolor += 1
+	currcolor = currcolor % len(colors)
+	return color
+	
+def resetColor():
+	global currcolor
+	currcolor = 0
+
+def nextOffset(colors):
+	global curroffset, currcolor
+	curroffset += 1
+	curroffset = curroffset % len(colors)
+	
+def dealColors(strip, colors):
+	global curroffset, currcolor
+	"""Deal out each color and repeat the pattern across all pixels"""
+	resetColor()
+	for i in range(strip.numPixels()):
+		color = getNextColor(colors)
+		strip.setPixelColor(i, color)
+	
+	#print curroffset
+	strip.show()
+	time.sleep(1)
+	nextOffset(colors)
+		
+def setAll(strip, color):
+	"""Set all pixel to a given colors"""
+	for i in range(strip.numPixels()):
+		strip.setPixelColor(i, color)
+	strip.show()
+	
 # Main program logic follows:
 if __name__ == '__main__':
         # Process arguments
@@ -101,17 +147,32 @@ if __name__ == '__main__':
 	# Intialize the library (must be called once before other functions).
 	strip.begin()
 
+	currcolor = 0
+	curroffset = 0
+	
 	print ('Press Ctrl-C to quit.')
 	while True:
 		# print ('Color wipe animations.')
 		#colorWipe(strip, Color(255, 0, 0))  # Red wipe
-		#colorWipe(strip, Color(0, 255, 0))  # Blue wipe
-		#colorWipe(strip, Color(0, 0, 255))  # Green wipe
-		colorWipe(strip, Color(0, 81, 72))  # Midnight Green wipe
-		#colorWipe(strip, Color(127, 127, 127))  # White wipe
-		colorWipe(strip, Color(84, 90, 88))  # Charcoal wipe
-		colorWipe(strip, Color(141,147,144)) # Silver wipe
-		colorWipe(strip, Color(0, 0, 0))  # Black wipe
+		#colorWipe(strip, Color(0, 255, 0))  # Green wipe
+		#colorWipe(strip, Color(0, 0, 255))  # Blue wipe
+		
+		#Valentine's Day colors
+		colors = list()
+		colors.append(Color(206,68,68))
+		colors.append(Color(101,1,92))
+		colors.append(Color(255,123,210))
+		colors.append(Color(101,1,92))
+		colors.append(Color(206,68,68))
+		dealColors(strip, colors)
+		
+		# colors = list()
+		# colors.append(Color(255,0,0))
+		# colors.append(Color(0,255,0))
+		# colors.append(Color(0,0,255))
+		# dealColors(strip, colors)
+		
+		
 		# print ('Theater chase animations.')
 		# theaterChase(strip, Color(127, 127, 127))  # White theater chase
 		# theaterChase(strip, Color(127,   0,   0))  # Red theater chase
