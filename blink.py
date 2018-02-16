@@ -4,9 +4,7 @@
 # Date aware decorative lights
 
 import time
-
 from neopixel import *
-
 import argparse
 import signal
 import sys
@@ -90,16 +88,18 @@ if __name__ == '__main__':
     curroffset = 0
 
     print ('Press Ctrl-C to quit.')
+    today = datetime.date.today()
+    print "today:",today
+    
     while True:
         today = datetime.date.today()
-        print "today:",today
-        found = False
         
         # Valentine's Day colors
         event = datetime.date(today.year, 2, 14)
-        if today <= event and not found:
-            print "Valentine's Day colors"
-            found = True
+        turnon = event - datetime.timedelta(days = 7)
+        turnoff = event + datetime.timedelta(days = 1)
+        if turnon <= today and today < turnoff:
+            print "Valentine's Day"
             colors = list()
             colors.append(Color(206,68,68))
             colors.append(Color(101,1,92))
@@ -107,19 +107,35 @@ if __name__ == '__main__':
             colors.append(Color(101,1,92))
             colors.append(Color(206,68,68))
             dealColors(strip, colors)
+            continue
             
         # St. Patrick's Day colors
         event = datetime.date(today.year, 3, 17)
-        if today <= event and not found:
-            print "St. Patrick's Day colors"
-            found = True
+        turnon = event - datetime.timedelta(days = 7)
+        turnoff = event + datetime.timedelta(days = 1)
+        if turnon <= today and today < turnoff:
+            print "St. Patrick's Day"
             colors = list()
             colors.append(Color(0,255,0))
             colors.append(Color(160,216,0))
-            #colors.append(Color(9,148,65))
-            #colors.append(Color(141,197,62))
             colors.append(Color(7,128,20))
             dealColors(strip, colors)
+            continue
+            
+        # Easter
+        event = datetime.date(today.year, 4, 1)
+        turnon = event - datetime.timedelta(days = 7)
+        turnoff = event + datetime.timedelta(days = 1)
+        if turnon <= today and today < turnoff:
+            print "Easter"
+            colors = list()
+            colors.append(Color(255,197,177))
+            colors.append(Color(68,255,222))
+            colors.append(Color(200,255,183))
+            colors.append(Color(255,235,48))
+            colors.append(Color(255,48,48))
+            dealColors(strip, colors)
+            continue
         
-        if not found:
-            setAll(strip, Color(0,0,0))
+        print "No Event" 
+        setAll(strip, Color(0,0,0))
