@@ -1,9 +1,9 @@
 # allyearlights 
 Controlling WS2811 LED strips using Rpi0w. The eventual goal is to leave the decorative lights up all year long with and editable schedule of color patterns for given holidays.
 
-## WS2811 on pin 12 PWM0
+>WS2811 on pin 12 PWM0
 
-sudo nano /etc/modprobe.d/snd-blacklist.conf`
+`sudo nano /etc/modprobe.d/snd-blacklist.conf`
 `Add:
 	blacklist snd_bcm2835
 `	
