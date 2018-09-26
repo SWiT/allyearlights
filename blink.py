@@ -93,6 +93,7 @@ if __name__ == '__main__':
     
     while True:
         today = datetime.date.today()
+	#today = datetime.date(today.year, 4, 1)
         
         # Valentine's Day colors
         event = datetime.date(today.year, 2, 14)

@@ -1,20 +1,21 @@
-# allyearlights
+# allyearlights 
 Controlling WS2811 LED strips using Rpi0w. The eventual goal is to leave the decorative lights up all year long with and editable schedule of color patterns for given holidays.
 
-#LEDPi 
-#WS2811 on pin 12 PWM0
+## WS2811 on pin 12 PWM0
 
-sudo nano /etc/modprobe.d/snd-blacklist.conf
-#Add:
-#	blacklist snd_bcm2835
-	
-#Edit config.txt and add:
-#	hdmi_force_hotplug=1
-#	hdmi_force_edid_audio=1
-	
-#Or	force hdmi audo via raspi-config under "Advanced Options"->"Audio"
+sudo nano /etc/modprobe.d/snd-blacklist.conf`
+`Add:
+	blacklist snd_bcm2835
+`	
+`Edit config.txt and add:
+	hdmi_force_hotplug=1
+	hdmi_force_edid_audio=1
+`	
+Or
+>force hdmi audo via raspi-config under "Advanced Options"->"Audio"
 
-#Set password, timezone, hostname, wifi, and enable SSH.
+Set password, timezone, hostname, wifi, and enable SSH.
+```
 sudo raspi-config	
 sudo reboot
 
@@ -48,5 +49,5 @@ python /home/pi/blink.py -c &
 
 ps aux | grep test
 kill -s SIGINT [PID]
-
+```
 
