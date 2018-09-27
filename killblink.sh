@@ -1,3 +1,2 @@
 #!/bin/bash
-ps aux | grep blink.py
-
+sudo pkill -ef blink.py

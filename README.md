@@ -48,6 +48,7 @@ sudo rm -rf ./build
 python ./setup.py build
 sudo python setup.py install
 ```
+
 - Add start up script to:
 ```
 sudo nano /etc/rc.local
@@ -56,17 +57,21 @@ Add:
 ```
 /home/pi/startup.sh &
 ```
+
 - Edit Startup Script
 ```
 nano  /home/pi/startup.sh
 ```
 ```
 #!/bin/bash
-/home/pi/rpi_ws281x/test -x 150 -y 1 -c &
+#/home/pi/rpi_ws281x/test -x 150 -y 1 -c &
 #or
-python /home/pi/blink.py -c &
+python /home/pi/allyearlights/blink.py -c &
+```
 
-ps aux | grep test
-kill -s SIGINT [PID]
+- Start or Stop Script
+```
+sudo /home/pi/startup.sh
+sudo pkill -ef blink.py
 ```
 
