@@ -93,8 +93,23 @@ if __name__ == '__main__':
     
     while True:
         today = datetime.date.today()
-	#today = datetime.date(today.year, 4, 1)
+		#today = datetime.date(today.year, 4, 1)
         
+		# Halloween colors
+        event = datetime.date(today.year, 10, 31)
+        turnon = event - datetime.timedelta(days = 31)
+        turnoff = event + datetime.timedelta(days = 1)
+        if turnon <= today and today < turnoff:
+            print "Halloween"
+            colors = list()
+			#Color(R,G,B)
+            colors.append(Color(138,41,205))	#Purple
+            colors.append(Color(255,87,0))		#Orange
+            colors.append(Color(44,170,30))		#Green
+            colors.append(Color(219,212,239))	#Gray
+            dealColors(strip, colors)
+            continue
+		
         # Valentine's Day colors
         event = datetime.date(today.year, 2, 14)
         turnon = event - datetime.timedelta(days = 7)
