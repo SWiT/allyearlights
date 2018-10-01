@@ -29,7 +29,8 @@ sudo reboot
 - Prerequisites
 ```
 sudo apt update && sudo apt full-upgrade -y	
-sudo apt install scons git screen
+sudo apt install scons git screen python-pip
+sudo pip install flask
 sudo reboot
 ```
 ```
@@ -43,7 +44,7 @@ sudo /home
 - Install python lib.
 ```
 cd python
-sudo apt-get install python-dev swig
+sudo apt-get install python-dev swig 
 sudo rm -rf ./build
 python ./setup.py build
 sudo python setup.py install

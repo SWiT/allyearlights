@@ -9,6 +9,8 @@ import argparse
 import signal
 import sys
 import datetime
+import json
+import os
 
 def signal_handler(signal, frame):
     setAll(strip, Color(0,0,0))
@@ -91,67 +93,31 @@ if __name__ == '__main__':
     today = datetime.date.today()
     print "today:",today
     
+    dirpath = os.path.dirname(os.path.realpath(__file__))
+    
+    
+    with open(dirpath + '/schedule.json') as f:
+        schedule = json.load(f)
+
     while True:
         today = datetime.date.today()
 		#today = datetime.date(today.year, 4, 1)
         
-		# Halloween colors
-        event = datetime.date(today.year, 10, 31)
-        turnon = event - datetime.timedelta(days = 31)
-        turnoff = event + datetime.timedelta(days = 1)
-        if turnon <= today and today < turnoff:
-            print "Halloween"
-            colors = list()
-			#Color(R,G,B)
-            colors.append(Color(138,41,205))	#Purple
-            colors.append(Color(255,87,0))		#Orange
-            colors.append(Color(44,170,30))		#Green
-            colors.append(Color(219,212,239))	#Gray
-            dealColors(strip, colors)
-            continue
-		
-        # Valentine's Day colors
-        event = datetime.date(today.year, 2, 14)
-        turnon = event - datetime.timedelta(days = 7)
-        turnoff = event + datetime.timedelta(days = 1)
-        if turnon <= today and today < turnoff:
-            print "Valentine's Day"
-            colors = list()
-            colors.append(Color(206,68,68))
-            colors.append(Color(101,1,92))
-            colors.append(Color(255,123,210))
-            colors.append(Color(101,1,92))
-            colors.append(Color(206,68,68))
-            dealColors(strip, colors)
-            continue
-            
-        # St. Patrick's Day colors
-        event = datetime.date(today.year, 3, 17)
-        turnon = event - datetime.timedelta(days = 7)
-        turnoff = event + datetime.timedelta(days = 1)
-        if turnon <= today and today < turnoff:
-            print "St. Patrick's Day"
-            colors = list()
-            colors.append(Color(0,255,0))
-            colors.append(Color(160,216,0))
-            colors.append(Color(7,128,20))
-            dealColors(strip, colors)
-            continue
-            
-        # Easter
-        event = datetime.date(today.year, 4, 1)
-        turnon = event - datetime.timedelta(days = 7)
-        turnoff = event + datetime.timedelta(days = 1)
-        if turnon <= today and today < turnoff:
-            print "Easter"
-            colors = list()
-            colors.append(Color(255,197,177))
-            colors.append(Color(68,255,222))
-            colors.append(Color(200,255,183))
-            colors.append(Color(255,235,48))
-            colors.append(Color(255,48,48))
-            dealColors(strip, colors)
-            continue
+        found = False
+        for holiday in schedule:
+            event = datetime.date(today.year, holiday['month'], holiday['day'])
+            turnon = event - datetime.timedelta(days = holiday['daysprior'])
+            turnoff = event + datetime.timedelta(days = holiday['daysafter'])
+            if turnon <= today and today < turnoff:
+                print holiday['name']
+                colors = list()
+                for c in holiday['colors']:
+                    print c
+                    colors.append(Color(c[0],c[1],c[2]))
+                dealColors(strip, colors)
+                found = True
+                continue
         
-        print "No Event" 
-        setAll(strip, Color(0,0,0))
+        if not found:
+            print "No Event" 
+            setAll(strip, Color(0,0,0))
