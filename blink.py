@@ -18,7 +18,7 @@ def signal_handler(signal, frame):
     leds.setAll(Color(0,0,0))
     print "\nClear LEDs and quit."
     sys.exit(0)
-    
+    return
     
 # Parse any command line arguments or options 
 def parseCommandLine():
@@ -27,7 +27,7 @@ def parseCommandLine():
     args = parser.parse_args()
     if args.c:
         signal.signal(signal.SIGINT, signal_handler)
-        
+    return    
         
 class AllYearLights:
 
@@ -46,13 +46,11 @@ class AllYearLights:
         self.strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
+        self.colors = list()
         self.currcolor = 0
         self.curroffset = 0
         
-        self.getToday()
-        self.getSchedule()
-        self.getEvents()
-        
+        return
     
     def getSchedule(self):
         dirpath = os.path.dirname(os.path.realpath(__file__))
@@ -60,12 +58,13 @@ class AllYearLights:
             self.schedule = json.load(f)
             f.close()
         print "Schedule loaded."
+        return
     
     def getToday(self):
         self.today = datetime.date.today()
 		#self.today = datetime.date(today.year, 4, 1)
         print "Today:", self.today, datetime.datetime.now().time()
-    
+        return
     
     def getEvents(self):
         today =  self.today
@@ -87,7 +86,7 @@ class AllYearLights:
         if not found:
             print "No Event" 
             self.setAll(Color(0,0,0))
-        
+        return
         
     def getNextColor(self):
         """apply the current offset"""
@@ -96,20 +95,20 @@ class AllYearLights:
         self.currcolor += 1
         self.currcolor = self.currcolor % len(self.colors)
         return color
-	
+        return
     
     def resetColor(self):
         self.currcolor = 0
-
+        return
         
     def nextOffset(self):
         self.curroffset += 1
         self.curroffset = self.curroffset % len(self.colors)
-
+        return
         
     def setColors(self, colors):
         self.colors = colors
-
+        return
         
     def dealColors(self):
         """Deal out each color and repeat the pattern across all pixels"""
@@ -120,19 +119,20 @@ class AllYearLights:
         self.strip.show()
         time.sleep(1)
         self.nextOffset()
-        
+        return
         
     def setAll(self, color):
         """Set all pixel to a given colors"""
         for i in range(self.strip.numPixels()):
             self.strip.setPixelColor(i, color)
         self.strip.show()
-        
+        return
         
     def runLights(self):
         self.getToday()
+        self.getSchedule()
         self.getEvents()
-        pass
+        return
 	
 # Main program logic follows:
 if __name__ == '__main__':
