@@ -12,99 +12,65 @@ import datetime
 import json
 import os
 
-def signal_handler(signal, frame):
-    setAll(strip, Color(0,0,0))
-    print "\nquit"
-    sys.exit(0)
 
-def opt_parse():
+# Signal Handler for clearing LEDs on exit
+def signal_handler(signal, frame):
+    leds.setAll(Color(0,0,0))
+    print "\nClear LEDs and quit."
+    sys.exit(0)
+    
+    
+# Parse any command line arguments or options 
+def parseCommandLine():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', action='store_true', help='clear the display on exit')
     args = parser.parse_args()
     if args.c:
         signal.signal(signal.SIGINT, signal_handler)
-
-# LED strip configuration:
-LED_COUNT      = 150      # Number of LED pixels.
-LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
-#LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
-LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
-LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
-LED_BRIGHTNESS = 80     # Set to 0 for darkest and 255 for brightest
-LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
-LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
-LED_STRIP      = ws.WS2811_STRIP_RGB   # Strip type and colour ordering
-
-		
-def getNextColor(colors):
-	global currcolor, curroffset
-	
-	"""apply the current offset"""
-	i = (currcolor + curroffset) % len(colors)
-	
-	color = colors[i]
-	
-	currcolor += 1
-	currcolor = currcolor % len(colors)
-	return color
-	
-def resetColor():
-	global currcolor
-	currcolor = 0
-
-def nextOffset(colors):
-	global curroffset, currcolor
-	curroffset += 1
-	curroffset = curroffset % len(colors)
-	
-def dealColors(strip, colors):
-	global curroffset, currcolor
-	"""Deal out each color and repeat the pattern across all pixels"""
-	resetColor()
-	for i in range(strip.numPixels()):
-		color = getNextColor(colors)
-		strip.setPixelColor(i, color)
-	
-	#print curroffset
-	strip.show()
-	time.sleep(1)
-	nextOffset(colors)
-		
-def setAll(strip, color):
-	"""Set all pixel to a given colors"""
-	for i in range(strip.numPixels()):
-		strip.setPixelColor(i, color)
-	strip.show()
-	
-# Main program logic follows:
-if __name__ == '__main__':
-    # Process arguments
-    opt_parse()
-
-    # Create NeoPixel object with appropriate configuration.
-    strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
-    # Intialize the library (must be called once before other functions).
-    strip.begin()
-
-    currcolor = 0
-    curroffset = 0
-
-    print ('Press Ctrl-C to quit.')
-    today = datetime.date.today()
-    print "today:",today
-    
-    dirpath = os.path.dirname(os.path.realpath(__file__))
-    
-    
-    with open(dirpath + '/schedule.json') as f:
-        schedule = json.load(f)
-
-    while True:
-        today = datetime.date.today()
-		#today = datetime.date(today.year, 4, 1)
         
+        
+class AllYearLights:
+
+    def __init__(self):
+        # LED strip configuration:
+        LED_COUNT      = 150      # Number of LED pixels.
+        LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
+        LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
+        LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
+        LED_BRIGHTNESS = 10     # Set to 0 for darkest and 255 for brightest
+        LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
+        LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
+        LED_STRIP      = ws.WS2811_STRIP_RGB   # Strip type and colour ordering
+    
+        # Create NeoPixel object with appropriate configuration.
+        self.strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
+        # Intialize the library (must be called once before other functions).
+        self.strip.begin()
+        self.currcolor = 0
+        self.curroffset = 0
+        
+        self.getToday()
+        self.getSchedule()
+        self.getEvents()
+        
+    
+    def getSchedule(self):
+        dirpath = os.path.dirname(os.path.realpath(__file__))
+        with open(dirpath + '/schedule.json') as f:
+            self.schedule = json.load(f)
+            f.close()
+        print "Schedule loaded."
+    
+    def getToday(self):
+        self.today = datetime.date.today()
+		#self.today = datetime.date(today.year, 4, 1)
+        print "Today:", self.today, datetime.datetime.now().time()
+    
+    
+    def getEvents(self):
+        today =  self.today
         found = False
-        for holiday in schedule:
+        for holiday in self.schedule:
             event = datetime.date(today.year, holiday['month'], holiday['day'])
             turnon = event - datetime.timedelta(days = holiday['daysprior'])
             turnoff = event + datetime.timedelta(days = holiday['daysafter'])
@@ -114,10 +80,70 @@ if __name__ == '__main__':
                 for c in holiday['colors']:
                     print c
                     colors.append(Color(c[0],c[1],c[2]))
-                dealColors(strip, colors)
+                self.setColors(colors)
+                self.dealColors()
                 found = True
-                continue
-        
+                continue    
         if not found:
             print "No Event" 
-            setAll(strip, Color(0,0,0))
+            self.setAll(Color(0,0,0))
+        
+        
+    def getNextColor(self):
+        """apply the current offset"""
+        i = (self.currcolor + self.curroffset) % len(self.colors)
+        color = self.colors[i]
+        self.currcolor += 1
+        self.currcolor = self.currcolor % len(self.colors)
+        return color
+	
+    
+    def resetColor(self):
+        self.currcolor = 0
+
+        
+    def nextOffset(self):
+        self.curroffset += 1
+        self.curroffset = self.curroffset % len(self.colors)
+
+        
+    def setColors(self, colors):
+        self.colors = colors
+
+        
+    def dealColors(self):
+        """Deal out each color and repeat the pattern across all pixels"""
+        self.resetColor()
+        for i in range(self.strip.numPixels()):
+            color = self.getNextColor()
+            self.strip.setPixelColor(i, color)
+        self.strip.show()
+        time.sleep(1)
+        self.nextOffset()
+        
+        
+    def setAll(self, color):
+        """Set all pixel to a given colors"""
+        for i in range(self.strip.numPixels()):
+            self.strip.setPixelColor(i, color)
+        self.strip.show()
+        
+        
+    def runLights(self):
+        self.getToday()
+        self.getEvents()
+        pass
+	
+# Main program logic follows:
+if __name__ == '__main__':
+    # Process arguments
+    parseCommandLine()
+    
+    # Initialize the LEDPi object
+    print "AllYearLights"
+    leds = AllYearLights()
+    print "Press Ctrl-C to quit."
+
+    while True:
+        leds.runLights()
+        pass
