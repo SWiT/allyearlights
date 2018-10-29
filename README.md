@@ -56,23 +56,17 @@ sudo nano /etc/rc.local
 ```
 Add:
 ```
-/home/pi/startup.sh &
+/home/pi/allyearlights/startlights.sh &
 ```
 
-- Edit Startup Script
+- Edit Startup Script if you want to see output and errors
 ```
-nano  /home/pi/startup.sh
-```
-```
-#!/bin/bash
-#/home/pi/rpi_ws281x/test -x 150 -y 1 -c &
-#or
-python /home/pi/allyearlights/blink.py -c &
+nano  /home/pi/allyearlights/startlights.sh
 ```
 
 - Start or Stop Script
 ```
-sudo /home/pi/startup.sh
-sudo pkill -ef blink.py
+sudo python /home/pi/allyearlights/allyearlights.py -c
+sudo pkill -ef allyearlights.py
 ```
 
