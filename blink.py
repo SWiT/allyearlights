@@ -52,18 +52,18 @@ class AllYearLights:
         
         return
     
+    def getToday(self):
+        self.today = datetime.date.today()
+		#self.today = datetime.date(today.year, 4, 1)
+        print "Today:", self.today, datetime.datetime.now().time()
+        return
+    
     def getSchedule(self):
         dirpath = os.path.dirname(os.path.realpath(__file__))
         with open(dirpath + '/schedule.json') as f:
             self.schedule = json.load(f)
             f.close()
         print "Schedule loaded."
-        return
-    
-    def getToday(self):
-        self.today = datetime.date.today()
-		#self.today = datetime.date(today.year, 4, 1)
-        print "Today:", self.today, datetime.datetime.now().time()
         return
     
     def getEvents(self):
@@ -95,12 +95,7 @@ class AllYearLights:
         self.currcolor += 1
         self.currcolor = self.currcolor % len(self.colors)
         return color
-        return
-    
-    def resetColor(self):
-        self.currcolor = 0
-        return
-        
+            
     def nextOffset(self):
         self.curroffset += 1
         self.curroffset = self.curroffset % len(self.colors)
@@ -112,7 +107,7 @@ class AllYearLights:
         
     def dealColors(self):
         """Deal out each color and repeat the pattern across all pixels"""
-        self.resetColor()
+        self.currcolor = 0
         for i in range(self.strip.numPixels()):
             color = self.getNextColor()
             self.strip.setPixelColor(i, color)
