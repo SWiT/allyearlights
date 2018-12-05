@@ -46,10 +46,11 @@ class AllYearLights:
         self.strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
-        self.colors = list()
-        self.currcolor = 0
-        self.curroffset = 0
         
+        self.colors = list()
+        self.color = Color(0,0,0)
+        self.colorindex = 0
+        self.offset = 0
         return
     
     def getToday(self):
@@ -67,7 +68,7 @@ class AllYearLights:
         return
     
     def getEvents(self):
-        today =  self.today
+        today = self.today
         found = False
         for holiday in self.schedule:
             event = datetime.date(today.year, holiday['month'], holiday['day'])
@@ -87,32 +88,39 @@ class AllYearLights:
             print "No Event" 
             self.setAll(Color(0,0,0))
         return
-        
-    def getNextColor(self):
-        """apply the current offset"""
-        i = (self.currcolor + self.curroffset) % len(self.colors)
-        color = self.colors[i]
-        self.currcolor += 1
-        self.currcolor = self.currcolor % len(self.colors)
-        return color
+
+    def resetColor(self):
+        self.colorindex = self.offset % len(self.colors)
+        self.color = self.colors[self.colorindex]
+        return    
+    
+    def nextColor(self):
+        self.colorindex = (self.colorindex + 1) % len(self.colors)
+        self.color = self.colors[self.colorindex]
+        return
             
     def nextOffset(self):
-        self.curroffset += 1
-        self.curroffset = self.curroffset % len(self.colors)
+        self.offset = (self.offset + 1) % len(self.colors)
         return
         
     def setColors(self, colors):
         self.colors = colors
+        self.colorindex = self.colorindex % len(self.colors)
+        self.color = self.colors[self.colorindex]
+        self.offset = self.offset % len(self.colors)
         return
         
     def dealColors(self):
         """Deal out each color and repeat the pattern across all pixels"""
-        self.currcolor = 0
+        print "offset:",self.offset
+        self.resetColor()
         for i in range(self.strip.numPixels()):
-            color = self.getNextColor()
-            self.strip.setPixelColor(i, color)
+            self.strip.setPixelColor(i, self.color)    
+            self.nextColor()    
+            
         self.strip.show()
         time.sleep(1)
+        
         self.nextOffset()
         return
         
