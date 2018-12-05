@@ -1,9 +1,12 @@
 from flask import Flask
+from config import Config
 from flask import render_template
-import os
-import json
+
+import os, json
 
 app = Flask(__name__)
+app.config.from_object(Config)
+
 
 @app.route("/")
 def main():

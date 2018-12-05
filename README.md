@@ -31,6 +31,7 @@ sudo reboot
 sudo apt update && sudo apt full-upgrade -y	
 sudo apt install scons git screen python-pip
 sudo pip install flask
+sudo pip install flask-wtf
 sudo reboot
 ```
 ```
