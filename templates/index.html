@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <title>{{ title }}</title>
+    </head>
+    <body>
+		<div>
+		{% for event in schedule %}
+			<div>
+				<div>Name: {{ event.name }}</div>
+				<div>Month: {{ event.month }}</div>
+				<div>Day: {{ event.day }}</div>
+				<div>Days Before: {{ event.daysprior }}</div>
+				<div>Days After: {{ event.daysafter }}</div>
+				<div>Colors:
+					{% for color in event.colors %}
+					<span style="background-color:rgb({{ color[0] }},{{ color[1] }},{{ color[2] }})">&nbsp;</span>
+					{% endfor %}
+				</div>
+			</div>
+			<br/>
+		{% endfor %}
+		</div>
+    </body>
+</html>
